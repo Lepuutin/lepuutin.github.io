@@ -1,105 +1,116 @@
 <!DOCTYPE html>
-<!-- saved from url=(0037)https://snack.viikinnormaalikoulu.fi/ -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   
+<html lang="fi">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Välipala</title>
-    
-   
-    
-    <!-- adding Bootstrap 4 for UI components  -->
-    <link rel="stylesheet" href="bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-  </head>
-  <script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <style>
+        /* Tehdään logosta painike, joka ei näytä painikkeelta */
+        .invisible-button {
+            color: white !important;
+            text-decoration: none !important;
+            cursor: default; /* Vaihda 'pointer' jos haluat sormen näkyvän päälle mentäessä */
+            user-select: none;
+        }
+    </style>
+</head>
+<script>
     function updateDate() {
-    const date = new Date();
-    const formattedDate = date.toLocaleDateString('fi-FI', { day: 'numeric', month: 'numeric', year: 'numeric' });
-    document.getElementById("date").innerHTML = formattedDate;
+        const date = new Date();
+        const formattedDate = date.toLocaleDateString('fi-FI', { day: 'numeric', month: 'numeric', year: 'numeric' });
+        document.getElementById("date").innerHTML = formattedDate;
     }
+
     function naytaPaiva() {
-            const paiva = new Date();
-            const paivanNimi = paiva.toLocaleDateString('fi-FI', { weekday: 'long' });
+        const paiva = new Date();
+        const paivanNimi = paiva.toLocaleDateString('fi-FI', { weekday: 'long' });
 
-            // Määritellään lyhennykset
-            let lyhenne;
-            switch (paivanNimi) {
-                case 'maanantai':
-                    lyhenne = 'MA';
-                    break;
-                case 'tiistai':
-                    lyhenne = 'TI';
-                    break;
-                case 'keskiviikko':
-                    lyhenne = 'KE';
-                    break;
-                case 'torstai':
-                    lyhenne = 'TO';
-                    break;
-                case 'perjantai':
-                    lyhenne = 'PE';
-                    break;
-                case 'lauantai':
-                    lyhenne = 'LA';
-                    break;
-                case 'sunnuntai':
-                    lyhenne = 'SU';
-                    break;
-                default:
-                    lyhenne = '';
-            }
-            document.getElementById("snackDays").innerText = lyhenne;
+        let lyhenne;
+        switch (paivanNimi) {
+            case 'maanantai': lyhenne = 'MA'; break;
+            case 'tiistai': lyhenne = 'TI'; break;
+            case 'keskiviikko': lyhenne = 'KE'; break;
+            case 'torstai': lyhenne = 'TO'; break;
+            case 'perjantai': lyhenne = 'PE'; break;
+            case 'lauantai': lyhenne = 'LA'; break;
+            case 'sunnuntai': lyhenne = 'SU'; break;
+            default: lyhenne = '';
+        }
+        document.getElementById("snackDays").innerText = lyhenne;
     }
+
     function kysyNimi() {
-          var nimi = prompt("kirjoita etunimi väli sukunimi väli luokka");
-          if (nimi) {
-              document.getElementById("displayName").innerText =  nimi ;
-          } else {
-              document.getElementById("displayName").innerText = "Et antanut nimeä.";
-          }
-        }
-    function kysyPaiva(){
-      var paiva = prompt("Mitkä päivät näytetään kirjoita esim MA TI KE TO PE jos et kirjoita niin tulee sama päivä")
-      if (paiva) {
-        document.getElementById("snackDays").innerText =  paiva ;
-      }
-      else{
-        naytaPaiva()
+        let tallennettuNimi = localStorage.getItem("kayttajaNimi");
 
-      }
+        if (!tallennettuNimi) {
+            tallennettuNimi = prompt("Kirjoita etunimi sukunimi ja luokka");
+            if (tallennettuNimi) {
+                localStorage.setItem("kayttajaNimi", tallennettuNimi);
+            }
+        }
+
+        if (tallennettuNimi) {
+            document.getElementById("displayName").innerText = tallennettuNimi;
+        } else {
+            document.getElementById("displayName").innerText = "Et antanut nimeä.";
+        }
     }
-    function init() {
-            kysyNimi();
-            kysyPaiva();
-            updateDate();
+
+    function kysyPaiva() {
+        let tallennetutPaivat = localStorage.getItem("valipalaPaivat");
+
+        if (!tallennetutPaivat) {
+            let vastaus = prompt("Mitkä päivät näytetään? (esim. MA TI KE TO PE)");
+            if (vastaus) {
+                localStorage.setItem("valipalaPaivat", vastaus);
+                tallennetutPaivat = vastaus;
+            }
         }
-  setInterval(updateDate, 1000);
-  </script>
-  <body onload="init()">
+
+        if (tallennetutPaivat) {
+            document.getElementById("snackDays").innerText = tallennetutPaivat;
+        } else {
+            naytaPaiva();
+        }
+    }
+
+    // Salainen nollaustoiminto
+    function nollaaTiedot() {
+        localStorage.clear();
+        location.reload();
+    }
+
+    function init() {
+        kysyNimi();
+        kysyPaiva();
+        updateDate();
+    }
+
+    setInterval(updateDate, 1000);
+</script>
+
+<body onload="init()">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <a class="navbar-brand" href="https://snack.viikinnormaalikoulu.fi/">Välipala</a>
-      <!-- <button class="btn btn-primary" id="signIn" onclick="signIn()">Kirjaudu sisään </button> -->
+        <span class="navbar-brand invisible-button" onclick="nollaaTiedot()">Välipala</span>
     </nav>
+    
     <div id="card-div" style="padding: 15px; height: calc(100vh - 56px);" class="col">
-      <div class="card" style="height: 100%; color: white; background-color: green;" id="kortti">
-        <div class="card-body">
-          <div class="d-flex align-items-center" id="spinner" style="display: none !important;">
-            <div class="spinner-border ms-auto text-primary m-3" role="status" aria-hidden="true"></div>
-            <strong>Ladataan, odota hetki...</strong>
-          </div>
-          <div id="coupon" class="d-flex flex-column" style="height: 100%;">
-            <h5 style="margin-bottom: 10px;" id="date"></h5>
-            <h5 style="margin-bottom: 50px;" id="displayName"></h5>
-            <h4 id="infoText">Välipala tällä viikolla:</h4>
-            <h1 id="snackDays" style="margin-top: 50px;"></h1>
-            <div class="d-flex align-items-center justify-content-center flex-grow-1">
-              <div class="spinner-border text-light ms-auto text-primary" style="height: 8rem; width: 8rem; border-width: 1rem; animation-duration: 2s;" role="status" aria-hidden="true"></div>
+        <div class="card" style="height: 100%; color: white; background-color: green;" id="kortti">
+            <div class="card-body">
+                <div id="coupon" class="d-flex flex-column" style="height: 100%;">
+                    <h5 style="margin-bottom: 10px;" id="date"></h5>
+                    <h5 style="margin-bottom: 50px;" id="displayName"></h5>
+                    <h4 id="infoText">Välipala tällä viikolla:</h4>
+                    <h1 id="snackDays" style="margin-top: 50px;"></h1>
+                    
+                    <div class="d-flex align-items-center justify-content-center flex-grow-1">
+                        <div class="spinner-border text-light" style="height: 8rem; width: 8rem; border-width: 1rem; animation-duration: 2s;" role="status">
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-
-   
-  
-
-</body></html>
+</body>
+</html>
